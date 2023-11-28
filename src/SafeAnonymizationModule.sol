@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {Singleton} from "./common/Singleton.sol";
 import {ISafeAnonymizationModule} from "./interfaces/ISafeAnonymizationModule.sol";
 
-contract SafeAnonymizationModule is ISafeAnonymizationModule {
+contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
     //////////////////////
     // State Variables  //
     //////////////////////
