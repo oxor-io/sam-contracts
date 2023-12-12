@@ -98,15 +98,15 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         return s_participantsRoot;
     }
 
-    function getThreshold() external view returns (uint256) {
+    function getThreshold() external view returns (uint256 threshold) {
         return s_threshold;
     }
 
-    function getNonce() external view returns (uint256) {
+    function getNonce() external view returns (uint256 nonce) {
         return s_nonce;
     }
 
-    function getCommitStatus(uint256 commit) external view returns (uint256 isUsed) {
+    function getCommitStatus(uint256 commit) external view returns (uint256 isCommitUsed) {
         return s_isCommitUsed[commit];
     }
 
