@@ -312,23 +312,6 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
         assertEq(sam.getParticipantsRoot(), newRoot);
     }
 
-    function test_getCalldata() external view {
-        console.log("sam: ", address(sam));
-
-        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 2));
-        console.logBytes(cd);
-
-        cd = abi.encodeCall(SafeAnonymizationModule.file, ("threshold", 2));
-        console.logBytes(cd);
-
-        bytes32 what = "QWERTY";
-        cd = abi.encodeCall(SafeAnonymizationModule.file, (what, 12345));
-        console.logBytes(cd);
-
-        cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 0));
-        console.logBytes(cd);
-    }
-
     // Since after each contract change, its bytecode changes, and thus previous proofs become invalid.
     // In order not to change the proofs in each test, we will make a default proof.
     function defaultCorrectProof() internal pure returns (ISafeAnonymizationModule.Proof memory) {
