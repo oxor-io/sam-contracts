@@ -23,4 +23,6 @@ interface IMinimalSafeModuleManager {
     function execTransactionFromModuleReturnData(address to, uint256 value, bytes memory data, Operation operation)
         external
         returns (bool success, bytes memory returnData);
+
+    function enableModule(address module) external;
 }

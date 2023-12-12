@@ -1,32 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+// Contracts
 import {Singleton} from "./common/Singleton.sol";
+import {Groth16Verifier} from "./utils/Verifier.sol";
+
+// Libs
+import {PubSignalsConstructor} from "./libraries/PubSignalsConstructor.sol";
+
+// Interfaces
 import {ISafeAnonymizationModule} from "./interfaces/ISafeAnonymizationModule.sol";
+import {ISafe} from "./interfaces/Safe/ISafe.sol";
 
 contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
+    ///////////////////////
+    //Immutable Variables//
+    ///////////////////////
+    Groth16Verifier private immutable VERIFIER = new Groth16Verifier(); // TODO test that ok
+
     //////////////////////
     // State Variables  //
     //////////////////////
-    address private s_safe;
-    bytes32 private s_participantsRoot;
+    ISafe private s_safe;
+    uint64 private s_nonce;
+
+    uint256 private s_participantsRoot;
     uint256 private s_threshold;
 
-    uint256 private s_nonce;
-    mapping(bytes32 commit => bool isUsed) private s_isCommitUsed;
-
-    /////////////
-    // Events  //
-    /////////////
-    event Setup(address indexed initiator, address indexed safe, bytes32 initialSetupRoot, uint256 threshold);
-
-    /////////////
-    // Errors  //
-    /////////////
-    error SafeAnonymizationModule__alreadyInitialized();
-    error SafeAnonymizationModule__safeIsZero();
-    error SafeAnonymizationModule__rootIsZero();
-    error SafeAnonymizationModule__thresholdIsZero();
+    mapping(uint256 commit => uint256 isUsed) private s_isCommitUsed;
 
     //////////////////////////////
     // Functions - Constructor  //
@@ -35,45 +36,65 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         s_threshold = 1;
     }
 
-    ////////////////////////////
+    ///////////////////////////
     // Functions - External  //
     ///////////////////////////
-    function setup(address safe, bytes32 participantsRoot, uint256 threshold) external {
+    function setup(address safe, uint256 participantsRoot, uint64 threshold) external {
         if (s_threshold != 0) {
             revert SafeAnonymizationModule__alreadyInitialized();
         }
 
-        if (safe == address(0)) {
-            revert SafeAnonymizationModule__safeIsZero();
+        // Parameters validation block
+        {
+            if (safe == address(0)) {
+                revert SafeAnonymizationModule__safeIsZero();
+            }
+
+            if (participantsRoot == 0) {
+                revert SafeAnonymizationModule__rootIsZero();
+            }
+
+            if (threshold == 0) {
+                revert SafeAnonymizationModule__thresholdIsZero();
+            }
         }
 
-        if (participantsRoot == bytes32(0)) {
-            revert SafeAnonymizationModule__rootIsZero();
-        }
-
-        if (threshold == 0) {
-            revert SafeAnonymizationModule__thresholdIsZero();
-        }
-
-        s_safe = safe;
+        s_safe = ISafe(safe);
         s_participantsRoot = participantsRoot;
         s_threshold = threshold;
 
         emit Setup(msg.sender, safe, participantsRoot, threshold);
     }
 
-    function executeTransaction() external {}
-    function executeTransactionEmitReturnedData() external {}
+    function executeTransaction(
+        address to,
+        uint256 value,
+        bytes memory data,
+        ISafe.Operation operation,
+        Proof[] calldata proofs
+    ) external returns (bool success) {
+        (success,) = _executeTransaction(to, value, data, operation, proofs);
+    }
+
+    function executeTransactionReturnData(
+        address to,
+        uint256 value,
+        bytes memory data,
+        ISafe.Operation operation,
+        Proof[] calldata proofs
+    ) external returns (bool success, bytes memory returnData) {
+        (success, returnData) = _executeTransaction(to, value, data, operation, proofs);
+    }
 
     //////////////////////////////
     // Functions - View & Pure  //
     //////////////////////////////
 
     function getSafe() external view returns (address safe) {
-        return s_safe;
+        return address(s_safe);
     }
 
-    function getParticipantsRoot() external view returns (bytes32 root) {
+    function getParticipantsRoot() external view returns (uint256 root) {
         return s_participantsRoot;
     }
 
@@ -85,7 +106,54 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         return s_nonce;
     }
 
-    function getCommitStatus(bytes32 commit) external view returns (bool isUsed) {
+    function getCommitStatus(uint256 commit) external view returns (uint256 isUsed) {
         return s_isCommitUsed[commit];
+    }
+
+    //////////////////////////////
+    //   Functions - Private    //
+    //////////////////////////////
+    function _executeTransaction(
+        address to,
+        uint256 value,
+        bytes memory data,
+        ISafe.Operation operation,
+        Proof[] calldata proofs
+    ) private returns (bool success, bytes memory returnData) {
+        uint256 threshold = s_threshold;
+        if (threshold == 0) {
+            revert SafeAnonymizationModule__thresholdIsZero();
+        }
+
+        if (threshold > proofs.length) {
+            revert SafeAnonymizationModule__notEnoughProofs(proofs.length, threshold);
+        }
+
+        // 0 slot is reserved for commits
+        uint256[6] memory pubSignals =
+            PubSignalsConstructor.getPubSignals(s_participantsRoot, to, value, data, operation, s_nonce++);
+
+        for (uint256 i; i < proofs.length; i++) {
+            Proof memory currentProof = proofs[i];
+
+            if (s_isCommitUsed[currentProof.commit] != 0) {
+                revert SafeAnonymizationModule__commitAlreadyUsed(i);
+            }
+            s_isCommitUsed[currentProof.commit] = 1;
+
+            pubSignals[0] = currentProof.commit;
+            bool result = VERIFIER.verifyProof({
+                _pA: currentProof._pA,
+                _pB: currentProof._pB,
+                _pC: currentProof._pC,
+                _pubSignals: pubSignals
+            });
+
+            if (!result) {
+                revert SafeAnonymizationModule__proofVerificationFailed(i);
+            }
+        }
+
+        return s_safe.execTransactionFromModuleReturnData(to, value, data, operation);
     }
 }
