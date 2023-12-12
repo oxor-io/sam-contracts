@@ -16,7 +16,7 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
     ///////////////////////
     //Immutable Variables//
     ///////////////////////
-    Groth16Verifier private immutable VERIFIER = new Groth16Verifier(); // TODO test that ok
+    Groth16Verifier private immutable VERIFIER = new Groth16Verifier();
 
     //////////////////////
     // State Variables  //

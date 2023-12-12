@@ -25,4 +25,6 @@ interface IMinimalSafeModuleManager {
         returns (bool success, bytes memory returnData);
 
     function enableModule(address module) external;
+
+    function isModuleEnabled(address module) external view returns (bool);
 }

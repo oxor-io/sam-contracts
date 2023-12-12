@@ -7,15 +7,14 @@ import {SafeProxyFactory} from "../../src/proxy/SafeProxyFactory.sol";
 
 import {ISafe} from "../../src/interfaces/Safe/ISafe.sol";
 import {IMinimalSafeModuleManager} from "../../src/interfaces/Safe/IMinimalSafeModuleManager.sol";
-
-import {console} from "forge-std/console.sol";
+import {ArrHelper} from "../helpers/ArrHelper.sol";
 
 contract SAMSetup is Test {
     //////////////////////
     //    Constants     //
     //////////////////////
 
-    // Safe in Mainnet
+    // Safe in mainnet
     address internal constant SAFE_SINGLETON = 0x41675C099F32341bf84BFc5382aF534df5C7461a;
     SafeProxyFactory internal constant SAFE_PROXY_FACTORY = SafeProxyFactory(0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67);
 
@@ -37,38 +36,39 @@ contract SAMSetup is Test {
     SafeAnonymizationModule internal samSingleton;
     SafeProxyFactory internal samProxyFactory;
 
-    function setUp() public virtual {
-        // Create fork
-        string memory RPC_URL = vm.envString("MAINNET_RPC");
+    modifier fork(string memory env_var) {
+        string memory RPC_URL = vm.envString(env_var);
         vm.createSelectFork(RPC_URL);
+        _;
+    }
 
-        // Create minimal Safe
-        address[] memory owners = new address[](1);
-        owners[0] = address(this);
-        safe = _createMinimalSafeWallet(owners);
+    function setUp() public virtual fork("MAINNET_RPC") {
+        safe = createMinimalSafeWallet(ArrHelper._arr(address(this)), DEFAULT_THRESHOLD, DEFAULT_SALT);
 
         // Create SAM module
         samSingleton = new SafeAnonymizationModule();
         samProxyFactory = new SafeProxyFactory();
 
-        bytes memory initializeDataSam =
+        bytes memory initializeDataSAM =
             abi.encodeCall(SafeAnonymizationModule.setup, (address(safe), DEFAULT_ROOT, DEFAULT_THRESHOLD));
 
-        sam = SafeAnonymizationModule(
-            address(
-                samProxyFactory.createChainSpecificProxyWithNonce(
-                    address(samSingleton), initializeDataSam, DEFAULT_SALT
-                )
-            )
-        );
+        sam = createSAM(initializeDataSAM, DEFAULT_SALT);
     }
 
     //////////////////////
     //  Help functions  //
     //////////////////////
+    function createSAM(bytes memory initData, uint256 salt) internal returns (SafeAnonymizationModule newSAM) {
+        return SafeAnonymizationModule(
+            address(samProxyFactory.createChainSpecificProxyWithNonce(address(samSingleton), initData, salt))
+        );
+    }
 
     // Create Safe wallet with minimal settings
-    function _createMinimalSafeWallet(address[] memory owners) internal returns (ISafe) {
+    function createMinimalSafeWallet(address[] memory owners, uint64 threshold, uint256 salt)
+        internal
+        returns (ISafe newSafeWallet)
+    {
         address optionalDelegateCallTo = address(0);
         bytes memory optionalDelegateCallData = "";
 
@@ -81,7 +81,7 @@ contract SAMSetup is Test {
             ISafe.setup,
             (
                 owners,
-                DEFAULT_THRESHOLD,
+                threshold,
                 optionalDelegateCallTo,
                 optionalDelegateCallData,
                 fallbackHandler,
@@ -92,18 +92,23 @@ contract SAMSetup is Test {
         );
 
         return ISafe(
-            address(
-                SAFE_PROXY_FACTORY.createChainSpecificProxyWithNonce(SAFE_SINGLETON, initializeDataSafe, DEFAULT_SALT)
-            )
+            address(SAFE_PROXY_FACTORY.createChainSpecificProxyWithNonce(SAFE_SINGLETON, initializeDataSafe, salt))
         );
     }
 
-    function enableModule(address module) internal {
+    error TestRevert_moduleNotEnabled();
+
+    function enableModule(address safeContract, address module) internal {
         bytes memory cd = abi.encodeCall(IMinimalSafeModuleManager.enableModule, (module));
-        sendTxToSafe(address(this), address(safe), 0, cd, IMinimalSafeModuleManager.Operation.Call, 1e5);
+        sendTxToSafe(safeContract, address(this), safeContract, 0, cd, IMinimalSafeModuleManager.Operation.Call, 1e5);
+
+        if (!ISafe(safeContract).isModuleEnabled(module)) {
+            revert TestRevert_moduleNotEnabled();
+        }
     }
 
     function sendTxToSafe(
+        address safeContract,
         address sender,
         address to,
         uint256 value,
@@ -113,7 +118,8 @@ contract SAMSetup is Test {
     ) internal returns (bool success) {
         bytes memory sig = encodeSenderSignature(sender);
 
-        return safe.execTransaction(
+        vm.prank(sender);
+        return ISafe(safeContract).execTransaction{value: value}(
             to, value, data, operation, gasForExec, block.basefee, tx.gasprice, address(0), payable(address(this)), sig
         );
     }
