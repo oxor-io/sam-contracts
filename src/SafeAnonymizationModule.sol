@@ -86,6 +86,29 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         (success, returnData) = _executeTransaction(to, value, data, operation, proofs);
     }
 
+    function file(bytes32 what, uint256 value) external {
+        // If setup was not called -> safe is zero (revert)
+        // Else everything is ok, call came from safe (via module or directly) and all params already set
+
+        if (msg.sender != address(s_safe)) {
+            revert SafeAnonymizationModule__notSafe();
+        }
+
+        if (value == 0) {
+            revert SafeAnonymizationModule__fileArgIsZero();
+        }
+
+        if (what == "threshold") {
+            s_threshold = value;
+        } else if (what == "root") {
+            s_participantsRoot = value;
+        } else {
+            revert SafeAnonymizationModule__invalidFileParameter(what);
+        }
+
+        emit File(what, value);
+    }
+
     //////////////////////////////
     // Functions - View & Pure  //
     //////////////////////////////
@@ -129,7 +152,9 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
             revert SafeAnonymizationModule__notEnoughProofs(proofs.length, threshold);
         }
 
-        // 0 slot is reserved for commits
+        // 0 - commit
+        // 1 - root
+        // 2-5 - msg hash by chunks
         uint256[6] memory pubSignals =
             PubSignalsConstructor.getPubSignals(s_participantsRoot, to, value, data, operation, s_nonce++);
 

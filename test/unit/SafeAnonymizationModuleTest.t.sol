@@ -173,6 +173,162 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
         assertEq(abi.decode(returnData, (uint256)), DEFAULT_THRESHOLD);
     }
 
+    // File can not be called not from {self} account
+    function test_fileWillRevertIfNotSafe() external {
+        vm.expectRevert(ISafeAnonymizationModuleErrors.SafeAnonymizationModule__notSafe.selector);
+        sam.file("root", 1);
+    }
+
+    // File can not be called not from {self} account.
+    function test_fileCanNotChangeValueToZero() external enableModuleForSafe(safe, sam) {
+        ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x04218f39e325c86aa520bfbe646886969b0805dcfe46d377d12155cb0950aa6e,
+                0x17c290d031fe7fdc34e3f5422df2136e65d22874ae46728070e76f137b42e099
+                ),
+            _pB: ArrHelper._arr(
+                0x05439d03f1faf21cea7f868dfd5dc21f00e288aca0c6c4d048b1084dc0ed936d,
+                0x225afb8f9415100cce1ee0a988c8a426fc81cb8759aed43eb4a9c8aa893e7270,
+                0x2bf07fd5eb88cd5b403fd83c9982d0e17975f947a72a6297ee26be35f3b41a72,
+                0x177bbb2b4c32d5bf7dba8e52d3c9451de3f8c8374469a62b46b379815d6952a2
+                ),
+            _pC: ArrHelper._arr(
+                0x295c26867b0f4fc348733ecf07d7123e3c7044e1fc7dd7b52f9afabfae6e3d17,
+                0x09e6c80d094b83701274efc4fde160e0ca6f3beb5cc597dbd2e27a071a4aa39e
+                ),
+            commit: 0x1b80684a12d80a190cb01aa9601534d89c8f8202c0524118ecf9536f58e21c2a
+        });
+
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 0));
+
+        (bool success, bytes memory data) = sam.executeTransactionReturnData(
+            address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+
+        assertFalse(success);
+        assertEq(
+            abi.encodeWithSelector(ISafeAnonymizationModuleErrors.SafeAnonymizationModule__fileArgIsZero.selector), data
+        );
+
+        assertEq(sam.getThreshold(), DEFAULT_THRESHOLD);
+        assertEq(sam.getParticipantsRoot(), DEFAULT_ROOT);
+    }
+
+    // If what is unknown file must revert.
+    function test_fileWillRevertWithUnknownWhat() external enableModuleForSafe(safe, sam) {
+        ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x09720043b473e65dc14abf0780d15fe03036e0ed746f05b3b2f701ae3db013ea,
+                0x1c202e773e1efc6ec8f267cef6fc50c21b1e9b3016ae543ecf1497853a8b70e6
+                ),
+            _pB: ArrHelper._arr(
+                0x056c22f2a360679e0c52c875ba826b17127fd018852d6f395564d9de376a3536,
+                0x11889a6d60e239f218b1acf65443187462df335b1903bca7f7c3fb23dfd807f3,
+                0x04ea2e9b750352b3f0f228a9028f00d323c61ead0a82b29d96db686a46b71f80,
+                0x03a7704d23635e877857c962537c8323a33daeb8687c004191051d0d7089bc24
+                ),
+            _pC: ArrHelper._arr(
+                0x07d1e469aa31c8a8057ba7aecdf6c9be4ecbba82232c6c23062e263672b4bb71,
+                0x227f92a80f78e104595673753fdaf3f43a41d75218d2897ccf4d8d6a4ce46f7c
+                ),
+            commit: 0x0de30072291e5d374a5ef963015ff9e0362f5bf980c0a4a34082f7c4fa9ce457
+        });
+
+        bytes32 what = "QWERTY";
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, (what, 12345));
+
+        (bool success, bytes memory data) = sam.executeTransactionReturnData(
+            address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+
+        assertFalse(success);
+        bytes memory revertData = abi.encodeWithSelector(
+            ISafeAnonymizationModuleErrors.SafeAnonymizationModule__invalidFileParameter.selector, what
+        );
+        assertEq(revertData, data);
+        assertEq(sam.getThreshold(), DEFAULT_THRESHOLD);
+        assertEq(sam.getParticipantsRoot(), DEFAULT_ROOT);
+    }
+
+    // If SAM is call file with threshold argument - value must be changed.
+    function test_fileCanChangeThreshold() external enableModuleForSafe(safe, sam) {
+        ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x2789dab844fbba0bd22bec652dd5fa1c626df159d48ec72594f49d0024bd049b,
+                0x2e102c0a153914f26fa17bdb47356d1fe3850c748160b1430cc622f4347cef12
+                ),
+            _pB: ArrHelper._arr(
+                0x00b11de2fb820baf85e6f3b74cf2588997df34f70f2174d9ab1cfa21a30e3808,
+                0x0605abb6e3f476f850b3d640d11dfb6879445c6625374db2bc01d4d2e84b3401,
+                0x190867512863dec7fd6a101b2aeb3d93a2b20f87537fa9ed1d498d19eeeae7ca,
+                0x13b58ad387b1072253ab66b052a8d255989c1a997e31447f210c06148c070cd4
+                ),
+            _pC: ArrHelper._arr(
+                0x22b3c2cb8baee286c2e9a765c618514e64c05a58e3b068940de5e31938138839,
+                0x24ada268ad6ae805b034dae87a8132b4edc6199856d317914eb4755d49847b14
+                ),
+            commit: 0x03c4379fe6c22ba3135e0cb7f5ea7d2bacc0dde7bd6daeae391512cd468c111b
+        });
+
+        uint256 newThreshold = 2;
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("threshold", newThreshold));
+
+        (bool result,) = sam.executeTransactionReturnData(
+            address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+
+        assertTrue(result);
+        assertEq(sam.getThreshold(), newThreshold);
+    }
+
+    // If SAM is call file with threshold argument - value must be changed.
+    function test_fileCanChangeRoot() external enableModuleForSafe(safe, sam) {
+        ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x2fe94e80c6914433e7472551d4ed4818fee3e28b698222095633cc37920ffcf0,
+                0x0619973663f58e7535b7fee01690d7e50c7965a4ba6bf23e0c93835595c62fa8
+                ),
+            _pB: ArrHelper._arr(
+                0x0f338d4fca9b0d50126b9d7f2712ef86430ca0669f855bb82f41241baeffe475,
+                0x067b1d90b83c5a2eb7134400f2a8c6622e024993f6e1d3c43525ba1a04a99485,
+                0x297a022b4abc122733775d0ed562615ff6c7c1f76e49a34f55de98a5a6a726a9,
+                0x05b1e22c1d35d0e64df24a18b42f1ec403fd2f028e104fb4cbb74c7e7ece4ad2
+                ),
+            _pC: ArrHelper._arr(
+                0x006bbdadb45d9c9b8c8b9bb85fd848ed1a9fd32670df81fd28cf052a89683311,
+                0x1249f1fa25901448999f8652b73f6f29a16765a7cc571148e1c84ee54f5c8f59
+                ),
+            commit: 0x2f700cf514b7ff9d1c7483c848bc593255a65bd24e0f41f203b9ce4ad04d816e
+        });
+
+        uint256 newRoot = 2;
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", newRoot));
+
+        (bool result,) = sam.executeTransactionReturnData(
+            address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+
+        assertTrue(result);
+        assertEq(sam.getParticipantsRoot(), newRoot);
+    }
+
+    function test_getCalldata() external view {
+        console.log("sam: ", address(sam));
+
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 2));
+        console.logBytes(cd);
+
+        cd = abi.encodeCall(SafeAnonymizationModule.file, ("threshold", 2));
+        console.logBytes(cd);
+
+        bytes32 what = "QWERTY";
+        cd = abi.encodeCall(SafeAnonymizationModule.file, (what, 12345));
+        console.logBytes(cd);
+
+        cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 0));
+        console.logBytes(cd);
+    }
+
     // Since after each contract change, its bytecode changes, and thus previous proofs become invalid.
     // In order not to change the proofs in each test, we will make a default proof.
     function defaultCorrectProof() internal pure returns (ISafeAnonymizationModule.Proof memory) {
@@ -185,18 +341,18 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
         // ChainId: 1 (ETH)
         return ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x1b70e7f68fa1d33e9c3f6505fd0b75e08fecca0cfa2b69a4551c1898623bbfda,
-                0x02ac77b55d583337054b616e576487b4d85a384c4cb66bd5a131fb33f004a09e
+                0x221b220a3eca8ed6ee64bf14fa7353240bb3ef375a669f849c49b25205997af2,
+                0x0b6e9cc2d6c1ab8aabe89eb60d4c6b24821ce1f0341e3cd80f4ee1f502292f7b
                 ),
             _pB: ArrHelper._arr(
-                0x2c6aa4fc5fb5e8e08e700d665c5c50d6143bda464cbf22985cb5147535dd2970,
-                0x00beaa0a6e4e580d5480d352e9826800750fa40ed872af280d372ae20e1c547a,
-                0x2c1d946e0472ee958e00a2f00e9f3da57a6ad095391a7172d416968b5738169f,
-                0x289ef7709475c3b858d8b45cd28b3ab0b889377b815c6a2a4dc6b8ea850310ce
+                0x253cfc6a0f1d54822fabd747099cd0ddbb4e9bd7d27c5f2b7291c0eb8cad5669,
+                0x16d7975e4dc8a529379f86fe624bea93b77e568f8de31228cfddbd27e5c85319,
+                0x14da807174eabec09b20f428023f3d058aa6a19ee8fb098271b0183aa3b30263,
+                0x0bee5978910710b661f04e387b76269b09d8a1cf672f0dafdaf6c4f58b216e46
                 ),
             _pC: ArrHelper._arr(
-                0x02e8b0aa466edb599ffb3897407776c23b6b7a63e3f4108d5ccf8126e6575bbf,
-                0x0a1f56b50759072b0620d60a4c4a92ecdac5f93c30663ea96ce53786f6526c3c
+                0x15b25390fc76e92eaaad3892ae67bb075efad757a46d8071a3e251d74e624554,
+                0x210a9c0ee28d8b5f6aef03ecb9726e55017d84e509d0979d544c115a41d9bc45
                 ),
             commit: 0x0b7386c6ee5ebefc31a4c1defe57282c00b303394f976224ec87a01bfad562f0
         });
