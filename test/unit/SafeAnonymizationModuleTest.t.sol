@@ -398,6 +398,81 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
         assertEq(sam.getParticipantsRoot(), newValue);
     }
 
+    // Root change must invalidate all old proofs which was not used.
+    function test_afterRootChangeOldProofsCanNotBeUsed() external enableModuleForSafe(safe, sam) {
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 100));
+        sendTxToSafe(address(safe), address(this), address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, 1e5);
+
+        ISafeAnonymizationModule.Proof memory proof = defaultCorrectProof();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ISafeAnonymizationModuleErrors.SafeAnonymizationModule__proofVerificationFailed.selector, 0
+            )
+        );
+        sam.executeTransactionReturnData(
+            address(sam), 0, DEFAULT_CALLDATA, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+    }
+
+    // When threshold is bigger than 1, multiple proofs can be verified and tx executed
+    function test_multipleProofsCanBeVerifiedAndTxExecuted() external enableModuleForSafe(safe, sam) {
+        // Set threshold to 3
+        uint256 newThreshold = 3;
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("threshold", newThreshold));
+        sendTxToSafe(address(safe), address(this), address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, 1e5);
+
+        // Prepare proofs and execute tx
+        ISafeAnonymizationModule.Proof memory proof1 = defaultCorrectProof();
+
+        ISafeAnonymizationModule.Proof memory proof2 = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x2afe908f83145d802cc3e50369585df7786b3b316b1e516b6733cfb7384dd4c9,
+                0x2ba4550b3e1aa1c029a13de50805c514db11dc62013508709d4edbf8703f36c8
+                ),
+            _pB: ArrHelper._arr(
+                0x0db4cba65c38af0bdeb84ed9274c474f5dd444de6e3aae48f1b77e1b8a7bbe7f,
+                0x2843d75a220986c1328eabb6134f2095b74f532275e76fad76e77c4e6901d3ad,
+                0x2338761769c478c408787c703c6d490764128135f10ebd1da93aca317305eaa5,
+                0x037d35a6f23d567e3e5c39122bde4aeab506843ac6e5c971de0bfbbabd2bf2fc
+                ),
+            _pC: ArrHelper._arr(
+                0x21a576b9e3ba508132d69c6335932d7a4587b267c90c16be40d9d2485872c933,
+                0x08565baf5c3bdfaf998a8c42fc2669af51cfadce20ba459528d0888fafea243f
+                ),
+            commit: 0x16a2783612db151d79dcb5f97512328b79f4d171d3309f4fcec04a7f80a5c7cb
+        });
+
+        ISafeAnonymizationModule.Proof memory proof3 = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x2ceeedd5933a9eae0a9aaf9ef30b6d2e4ce8ad48268edc08dfd68025ac7c0a69,
+                0x1ecff4b9fe0762cbb10473702f4ece7e1cec09f3fc5a82db854ac5569dde1e51
+                ),
+            _pB: ArrHelper._arr(
+                0x190a36696796c11ad9af1f765cc81bde5073ba4b3c0e387d0ee960b148eefdfa,
+                0x29ab9befabfeb2a4f6613d94c95839692e33566842e1916d571d1a043c199ab2,
+                0x1a50f187086d0299ba491b54d49f5490ee671a7059495bba52b2a77e02a0fb94,
+                0x2cbf3700a58b6a260e3d4ee58f929107e99327eb3a14c582fbfc7a24f418bd3c
+                ),
+            _pC: ArrHelper._arr(
+                0x2cb929c15ef202dce1dd73bcd07c28d85ccb1fc3a857324d1ee688d6694e2398,
+                0x0e3837c40bf296802ba7b78dd1a0a21563a28600966baa7af1b292ffb085b610
+                ),
+            commit: 0x200207958b8847abfe300c6eb3441bc3074cbc4d9bf4553153b343a3002547f0
+        });
+
+        (bool result, bytes memory data) = sam.executeTransactionReturnData(
+            address(sam),
+            0,
+            DEFAULT_CALLDATA,
+            IMinimalSafeModuleManager.Operation.Call,
+            ArrHelper._proofArr(proof1, proof2, proof3)
+        );
+
+        assertTrue(result);
+        assertEq(abi.decode(data, (uint256)), newThreshold);
+    }
+
     // Since after each contract change, its bytecode changes, and thus previous proofs become invalid.
     // In order not to change the proofs in each test, we will make a default proof.
     function defaultCorrectProof() internal pure returns (ISafeAnonymizationModule.Proof memory) {

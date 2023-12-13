@@ -27,6 +27,17 @@ library ArrHelper {
         arr[1] = b;
     }
 
+    function _proofArr(
+        ISafeAnonymizationModule.Proof memory a,
+        ISafeAnonymizationModule.Proof memory b,
+        ISafeAnonymizationModule.Proof memory c
+    ) internal pure returns (ISafeAnonymizationModule.Proof[] memory arr) {
+        arr = new ISafeAnonymizationModule.Proof[](3);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+    }
+
     function _arr(uint256 a, uint256 b) internal pure returns (uint256[2] memory arr) {
         arr[0] = a;
         arr[1] = b;
