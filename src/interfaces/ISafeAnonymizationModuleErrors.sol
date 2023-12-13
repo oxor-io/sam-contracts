@@ -29,4 +29,5 @@ interface ISafeAnonymizationModuleErrors {
     error SafeAnonymizationModule__notSafe();
     error SafeAnonymizationModule__fileArgIsZero();
     error SafeAnonymizationModule__invalidFileParameter(bytes32 what);
+    error SafeAnonymizationModule__thresholdIsTooBig();
 }

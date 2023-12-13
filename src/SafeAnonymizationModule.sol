@@ -40,10 +40,11 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
     // State Variables  //
     //////////////////////
     ISafe private s_safe;
-    uint64 private s_nonce;
+    // The value of type(uint64).max is large enough to hold the maximum possible amount of proofs.
+    uint64 private s_threshold;
 
     uint256 private s_participantsRoot;
-    uint256 private s_threshold;
+    uint256 private s_nonce;
 
     mapping(uint256 commit => uint256 isUsed) private s_isCommitUsed;
 
@@ -117,7 +118,11 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         }
 
         if (what == "threshold") {
-            s_threshold = value;
+            if (value > type(uint64).max) {
+                revert SafeAnonymizationModule__thresholdIsTooBig();
+            }
+
+            s_threshold = uint64(value);
         } else if (what == "root") {
             s_participantsRoot = value;
         } else {
