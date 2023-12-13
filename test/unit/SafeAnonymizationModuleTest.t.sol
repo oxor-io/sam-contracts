@@ -5,6 +5,8 @@ import {SAMSetup, Test, IMinimalSafeModuleManager, SafeAnonymizationModule, ISaf
 import {
     ISafeAnonymizationModuleErrors, ISafeAnonymizationModule
 } from "../../src/interfaces/ISafeAnonymizationModule.sol";
+import {SimpleContract} from "../helpers/SimpleContract.sol";
+import {SimpleContractDelegateCall} from "../helpers/SimpleContractDelegateCall.sol";
 
 contract SafeAnonymizationModuleTest is Test, SAMSetup {
     //////////////////////
@@ -310,6 +312,73 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
 
         assertTrue(result);
         assertEq(sam.getParticipantsRoot(), newRoot);
+    }
+
+    // SAM must be able to initiate Safe to call external contract.
+    function test_walletCanCallExternalContractFromModuleCall() external enableModuleForSafe(safe, sam) {
+        SimpleContractDelegateCall target = new SimpleContractDelegateCall();
+
+        uint256 value = 777;
+        bytes memory cd = abi.encodeCall(SimpleContractDelegateCall.call, (value));
+
+        ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x2ae8c0e564bea51560cc55c41056c442760ea496369c8d69e68408d28f7f514e,
+                0x14108a1f3fbebe9ccb567ecccc63105c453846207986306c8c06039422a6caa7
+                ),
+            _pB: ArrHelper._arr(
+                0x0747dbc19c193042b54e36c6cd88ed1b9754ff71b690e4450a89c0bba6b8398a,
+                0x0a6e35fd76c01c60e29284e9f6907bda608d237d64212776ee6894019e2ad156,
+                0x06820c09302ba57c3e0cba20db4ef50cb5b5d1afe7155ca55ee7a228ef35accf,
+                0x09b2d35413b612f287122bb79e13e8912e59de88de463d15aebba3049a3db88f
+                ),
+            _pC: ArrHelper._arr(
+                0x0d459d84bb97350be499105cadc10d827c272325efc2974a76ce27580e7ffc6d,
+                0x0ea8fa1e86fe0f7c2af371585788adddfb6cf9b98706c46db1e323fbaf80bfbd
+                ),
+            commit: 0x23a86b8311583d078cdb725ca8cecd657d7ddac6e3ee39136550cf2be235d60b
+        });
+
+        (bool result,) = sam.executeTransactionReturnData(
+            address(target), 0, cd, IMinimalSafeModuleManager.Operation.DelegateCall, ArrHelper._proofArr(proof)
+        );
+
+        assertTrue(result);
+
+        bytes32 valueFromSlot = vm.load(address(safe), bytes32(target.MAGIC_SLOT()));
+        assertEq(uint256(valueFromSlot), value);
+    }
+
+    // SAM must be able to initiate Safe to delegatecall external contract.
+    function test_walletCanDelegateCallExternalContractFromModuleCall() external enableModuleForSafe(safe, sam) {
+        SimpleContract target = new SimpleContract();
+
+        ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
+            _pA: ArrHelper._arr(
+                0x1557bc54edd29ca7cdd4cec48830e4e29129573df8efe294660f63d40b3930ab,
+                0x01b0887199beb15461ab3051701f96fa8fd69a7071ac5489480b0525a53c707f
+                ),
+            _pB: ArrHelper._arr(
+                0x25e41aa0c41d2b2118f84088ab00820acf663c1f16ba4fa349b07df84001eea3,
+                0x1ce7db95df0385eb8e790f575bc0e596438116253b3001e38b1c11188630f9ee,
+                0x2cd7af43839a8aa14c2216363c880ba4b5a03749a73fe9ade052740006d96eb9,
+                0x281e2c70a576f9d63dc56d862e7ee6b28316aa697fe21bf3920a09835f67671b
+                ),
+            _pC: ArrHelper._arr(
+                0x177492e52d1e0bdebfc9afc8cfd0dbdcdae6b899a1dddb2a43c54840a3cc1347,
+                0x0aa7ae884e68cdc2bd0abdeb9c21efb9b32312777061f889c404906ee2a04615
+                ),
+            commit: 0x21942c5132c58db5ba6f4b89f0d533b30f292f2b29b6d3d4372287e7346d35ce
+        });
+
+        bytes memory cd = abi.encodeCall(SimpleContract.call, ());
+
+        (bool result,) = sam.executeTransactionReturnData(
+            address(target), 0, cd, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+
+        assertTrue(result);
+        assertTrue(target.getMagicValue(address(safe)));
     }
 
     // Since after each contract change, its bytecode changes, and thus previous proofs become invalid.
