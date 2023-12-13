@@ -381,6 +381,23 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
         assertTrue(target.getMagicValue(address(safe)));
     }
 
+    // Safe Wallet can directly set parameters in SAM.
+    function test_walletCanSetParamsDirectly() external enableModuleForSafe(safe, sam) {
+        uint256 newValue = 999;
+
+        // Try to set threshold
+        bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("threshold", newValue));
+
+        sendTxToSafe(address(safe), address(this), address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, 1e5);
+        assertEq(sam.getThreshold(), newValue);
+
+        // Try to set root
+        cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", newValue));
+
+        sendTxToSafe(address(safe), address(this), address(sam), 0, cd, IMinimalSafeModuleManager.Operation.Call, 1e5);
+        assertEq(sam.getParticipantsRoot(), newValue);
+    }
+
     // Since after each contract change, its bytecode changes, and thus previous proofs become invalid.
     // In order not to change the proofs in each test, we will make a default proof.
     function defaultCorrectProof() internal pure returns (ISafeAnonymizationModule.Proof memory) {
