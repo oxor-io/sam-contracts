@@ -47,6 +47,7 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
     uint256 private s_nonce;
 
     mapping(uint256 commit => uint256 isUsed) private s_isCommitUsed;
+    mapping(bytes32 msgHash => uint256 amountOfApprovals) private s_hashApprovalAmount;
 
     //////////////////////////////
     // Functions - Constructor  //
@@ -105,10 +106,41 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         (success, returnData) = _executeTransaction(to, value, data, operation, proofs);
     }
 
-    function file(bytes32 what, uint256 value) external {
-        // If setup was not called -> safe is zero (revert)
-        // Else everything is ok, call came from safe (via module or directly) and all params already set
+    function approveHash(
+        address to,
+        uint256 value,
+        bytes memory data,
+        ISafe.Operation operation,
+        uint256 nonce,
+        Proof[] calldata proofs
+    ) external {
+        uint256 proofLen = proofs.length;
+        if (proofLen == 0) {
+            revert SafeAnonymizationModule__proofsLengthIsZero();
+        }
 
+        // Do not allow to approve hashes with used nonce
+        if (s_nonce > nonce) {
+            revert SafeAnonymizationModule__hashApproveToInvalidNonce();
+        }
+
+        uint256 root = s_participantsRoot;
+
+        // Check root to prevent calls when contract is not initialized
+        if (root == 0) {
+            revert SafeAnonymizationModule__rootIsZero();
+        }
+
+        (uint256[6] memory pubSignals, bytes32 msgHash) =
+            PubSignalsConstructor.getPubSignalsAndMsgHash(root, to, value, data, operation, nonce);
+
+        _checkNProofs(proofs, pubSignals);
+        s_hashApprovalAmount[msgHash] += proofLen;
+
+        emit ApproveHash(msgHash, proofLen);
+    }
+
+    function file(bytes32 what, uint256 value) external {
         if (msg.sender != address(s_safe)) {
             revert SafeAnonymizationModule__notSafe();
         }
@@ -144,7 +176,7 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         return s_participantsRoot;
     }
 
-    function getThreshold() external view returns (uint256 threshold) {
+    function getThreshold() external view returns (uint64 threshold) {
         return s_threshold;
     }
 
@@ -154,6 +186,18 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
 
     function getCommitStatus(uint256 commit) external view returns (uint256 isCommitUsed) {
         return s_isCommitUsed[commit];
+    }
+
+    function getHashApprovalAmount(bytes32 hash) external view returns (uint256 approvalAmount) {
+        return s_hashApprovalAmount[hash];
+    }
+
+    function getMessageHash(address to, uint256 value, bytes memory data, ISafe.Operation operation, uint256 nonce)
+        external
+        view
+        returns (bytes32 msgHash)
+    {
+        return PubSignalsConstructor.getMsgHash(to, value, data, operation, nonce);
     }
 
     //////////////////////////////
@@ -166,24 +210,39 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
         ISafe.Operation operation,
         Proof[] calldata proofs
     ) private returns (bool success, bytes memory returnData) {
-        uint256 threshold = s_threshold;
-        if (threshold == 0) {
-            revert SafeAnonymizationModule__thresholdIsZero();
+        uint256 root = s_participantsRoot;
+
+        // Check root to prevent calls when contract is not initialized.
+        if (root == 0) {
+            revert SafeAnonymizationModule__rootIsZero();
         }
 
-        if (threshold > proofs.length) {
-            revert SafeAnonymizationModule__notEnoughProofs(proofs.length, threshold);
+        // pubSignals = [commit, root, msg hash by chunks]
+        (uint256[6] memory pubSignals, bytes32 msgHash) =
+            PubSignalsConstructor.getPubSignalsAndMsgHash(root, to, value, data, operation, s_nonce++);
+
+        uint256 approvalAmount = s_hashApprovalAmount[msgHash];
+        if (s_threshold > (proofs.length + approvalAmount)) {
+            revert SafeAnonymizationModule__notEnoughProofs(proofs.length, s_threshold);
         }
 
-        // 0 - commit
-        // 1 - root
-        // 2-5 - msg hash by chunks
-        uint256[6] memory pubSignals =
-            PubSignalsConstructor.getPubSignals(s_participantsRoot, to, value, data, operation, s_nonce++);
+        _checkNProofs(proofs, pubSignals);
 
-        for (uint256 i; i < proofs.length; i++) {
+        if (approvalAmount != 0) {
+            // This hash will never be used again, since nonce is part of it.
+            // Therefore, we can delete the value that is stored to get a refund.
+            delete s_hashApprovalAmount[msgHash];
+        }
+
+        return s_safe.execTransactionFromModuleReturnData(to, value, data, operation);
+    }
+
+    function _checkNProofs(Proof[] calldata proofs, uint256[6] memory pubSignals) private {
+        uint256 proofsLength = proofs.length;
+        for (uint256 i; i < proofsLength; i++) {
             Proof memory currentProof = proofs[i];
 
+            // Commit is uniq because it hash(userAddress, msgHash)
             if (s_isCommitUsed[currentProof.commit] != 0) {
                 revert SafeAnonymizationModule__commitAlreadyUsed(i);
             }
@@ -201,7 +260,5 @@ contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
                 revert SafeAnonymizationModule__proofVerificationFailed(i);
             }
         }
-
-        return s_safe.execTransactionFromModuleReturnData(to, value, data, operation);
     }
 }

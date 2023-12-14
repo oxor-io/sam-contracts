@@ -1,49 +1,18 @@
 // SPDX-License-Identifier: GPL-3
 pragma solidity 0.8.23;
 
-import {SAMSetup, Test, IMinimalSafeModuleManager, SafeAnonymizationModule, ISafe, ArrHelper} from "./SAMSetup.sol";
+import {Setup, Test, IMinimalSafeModuleManager, SafeAnonymizationModule, ISafe, ArrHelper} from "./Setup.sol";
 import {
     ISafeAnonymizationModuleErrors, ISafeAnonymizationModule
 } from "../../src/interfaces/ISafeAnonymizationModule.sol";
+
 import {SimpleContract} from "../helpers/SimpleContract.sol";
 import {SimpleContractDelegateCall} from "../helpers/SimpleContractDelegateCall.sol";
 
-contract SafeAnonymizationModuleTest is Test, SAMSetup {
-    //////////////////////
-    //    Constants     //
-    //////////////////////
-    bytes constant DEFAULT_CALLDATA = abi.encodeWithSignature("getThreshold()");
-
-    //////////////////////
-    //    Modifiers     //
-    //////////////////////
-    modifier enableModuleForSafe(ISafe safeContract, SafeAnonymizationModule module) {
-        enableModule(address(safeContract), address(module));
-        _;
-    }
-
-    //////////////////////
-    //      Tests       //
-    //////////////////////
-
-    function test_singletonSetupWillRevert() external {
-        vm.expectRevert(ISafeAnonymizationModuleErrors.SafeAnonymizationModule__alreadyInitialized.selector);
-        samSingleton.setup(address(1), DEFAULT_ROOT, DEFAULT_THRESHOLD);
-    }
-
-    // Simply check that setup was ok
-    function test_rootIsInitializedCorrectly() external {
-        assertEq(sam.getParticipantsRoot(), DEFAULT_ROOT, "Setup failed! Root does not match the default one");
-    }
-
-    function test_impossibleToSetupMultiplyTimes() external {
-        vm.expectRevert(ISafeAnonymizationModuleErrors.SafeAnonymizationModule__alreadyInitialized.selector);
-        sam.setup(address(1), DEFAULT_ROOT, DEFAULT_THRESHOLD);
-    }
-
+contract SAMExecuteTxTest is Test, Setup {
     // Correct proof must be verified and tx getThreshold executed.
-    // Call result must be true and returned data must be equal to default threshold.
-    function test_correctProofCanBeVerifiedAndTxExecuted() external enableModuleForSafe(safe, sam) {
+    // Call must be successful and returned data correct
+    function test_correctProofCanBeVerifiedAndTxExecutedReturnData() external enableModuleForSafe(safe, sam) {
         ISafeAnonymizationModule.Proof memory proof = defaultCorrectProof();
 
         (bool result, bytes memory returnData) = sam.executeTransactionReturnData(
@@ -52,6 +21,18 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
 
         assertTrue(result);
         assertEq(abi.decode(returnData, (uint256)), DEFAULT_THRESHOLD);
+    }
+
+    // Same with the test above, but with another function.
+    // Call must be successful.
+    function test_correctProofCanBeVerifiedAndTxExecuted() external enableModuleForSafe(safe, sam) {
+        ISafeAnonymizationModule.Proof memory proof = defaultCorrectProof();
+
+        (bool result) = sam.executeTransaction(
+            address(sam), 0, DEFAULT_CALLDATA, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
+        );
+
+        assertTrue(result);
     }
 
     // Invalid proof must fail the verification process, tx must be reverted
@@ -76,14 +57,13 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
 
         ISafeAnonymizationModule.Proof memory proof = defaultCorrectProof();
 
-        vm.expectRevert(ISafeAnonymizationModuleErrors.SafeAnonymizationModule__thresholdIsZero.selector);
+        vm.expectRevert(ISafeAnonymizationModuleErrors.SafeAnonymizationModule__rootIsZero.selector);
         newSAM.executeTransactionReturnData(
             address(sam), 0, DEFAULT_CALLDATA, IMinimalSafeModuleManager.Operation.Call, ArrHelper._proofArr(proof)
         );
     }
 
     // Same proof can not be used for twice in different tx.
-    // TODO remove this test later, when we will get rid from commits.
     function test_sameProofCantBeUsedTwiceInDifferentTx() external enableModuleForSafe(safe, sam) {
         ISafeAnonymizationModule.Proof memory proof = defaultCorrectProof();
 
@@ -471,34 +451,5 @@ contract SafeAnonymizationModuleTest is Test, SAMSetup {
 
         assertTrue(result);
         assertEq(abi.decode(data, (uint256)), newThreshold);
-    }
-
-    // Since after each contract change, its bytecode changes, and thus previous proofs become invalid.
-    // In order not to change the proofs in each test, we will make a default proof.
-    function defaultCorrectProof() internal pure returns (ISafeAnonymizationModule.Proof memory) {
-        // Proof:
-        // Tree constructed from all Anvil addresses
-        // From: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (0 Anvil address)
-        // Calldata: 0xe75235b8 (getThreshold())
-        // Call type: Call
-        // Nonce: 0
-        // ChainId: 1 (ETH)
-        return ISafeAnonymizationModule.Proof({
-            _pA: ArrHelper._arr(
-                0x221b220a3eca8ed6ee64bf14fa7353240bb3ef375a669f849c49b25205997af2,
-                0x0b6e9cc2d6c1ab8aabe89eb60d4c6b24821ce1f0341e3cd80f4ee1f502292f7b
-                ),
-            _pB: ArrHelper._arr(
-                0x253cfc6a0f1d54822fabd747099cd0ddbb4e9bd7d27c5f2b7291c0eb8cad5669,
-                0x16d7975e4dc8a529379f86fe624bea93b77e568f8de31228cfddbd27e5c85319,
-                0x14da807174eabec09b20f428023f3d058aa6a19ee8fb098271b0183aa3b30263,
-                0x0bee5978910710b661f04e387b76269b09d8a1cf672f0dafdaf6c4f58b216e46
-                ),
-            _pC: ArrHelper._arr(
-                0x15b25390fc76e92eaaad3892ae67bb075efad757a46d8071a3e251d74e624554,
-                0x210a9c0ee28d8b5f6aef03ecb9726e55017d84e509d0979d544c115a41d9bc45
-                ),
-            commit: 0x0b7386c6ee5ebefc31a4c1defe57282c00b303394f976224ec87a01bfad562f0
-        });
     }
 }
