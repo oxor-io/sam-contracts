@@ -3,10 +3,10 @@ pragma solidity 0.8.23;
 
 import {Test} from "forge-std/Test.sol";
 import {SafeAnonymizationModule, ISafeAnonymizationModule} from "../../src/SafeAnonymizationModule.sol";
-import {SafeProxyFactory} from "../../src/proxy/SafeProxyFactory.sol";
+import {SafeProxyFactory} from "../../src/Safe/proxy/SafeProxyFactory.sol";
 
-import {ISafe} from "../../src/interfaces/Safe/ISafe.sol";
-import {IMinimalSafeModuleManager} from "../../src/interfaces/Safe/IMinimalSafeModuleManager.sol";
+import {ISafe} from "../../src/Safe/interfaces/ISafe.sol";
+import {IMinimalSafeModuleManager} from "../../src/Safe/interfaces/IMinimalSafeModuleManager.sol";
 import {ArrHelper} from "../helpers/ArrHelper.sol";
 
 contract Setup is Test {
@@ -25,7 +25,7 @@ contract Setup is Test {
     uint64 internal constant DEFAULT_THRESHOLD = 1;
     bytes internal constant DEFAULT_CALLDATA = abi.encodeWithSignature("getThreshold()");
     uint256 internal constant DEFAULT_SALT = uint256(keccak256(abi.encode(777)));
-    bytes32 internal constant DEFAULT_TX_HASH = 0x02cf47d991ff3ebcf9092d5258a4e23fb0ab4dba48ee355ec38343b6bb2ad48c;
+    bytes32 internal constant DEFAULT_TX_HASH = 0x09b086d54be973c0cae8f289b9a308969c3a0d336ba3000651cffcde84ce5fb3;
 
     //////////////////////
     // State Variables  //
@@ -160,20 +160,20 @@ contract Setup is Test {
         // ChainId: 1 (ETH)
         return ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x221b220a3eca8ed6ee64bf14fa7353240bb3ef375a669f849c49b25205997af2,
-                0x0b6e9cc2d6c1ab8aabe89eb60d4c6b24821ce1f0341e3cd80f4ee1f502292f7b
+                0x0066f6ad349f60b724e6f96a5dbe5c1b050f6dd738134efaeebf02c8dcf3d0db,
+                0x1fbeeb8b371db192bedbc4561d6315a47d8ed0f837fb3fa1d6fad75da0da858d
                 ),
             _pB: ArrHelper._arr(
-                0x253cfc6a0f1d54822fabd747099cd0ddbb4e9bd7d27c5f2b7291c0eb8cad5669,
-                0x16d7975e4dc8a529379f86fe624bea93b77e568f8de31228cfddbd27e5c85319,
-                0x14da807174eabec09b20f428023f3d058aa6a19ee8fb098271b0183aa3b30263,
-                0x0bee5978910710b661f04e387b76269b09d8a1cf672f0dafdaf6c4f58b216e46
+                0x143a09e94cfa0bd1adfafb39c2b251eb67014912c4ff29d9ef912dbed15a65d0,
+                0x16805b466b41489060ab41d80e9a2458146877701e1f7c60b3140e75620d5ab2,
+                0x2f43c2c42c006f8c05b78cc20890ad5aa6f6e4865155c4cec3720e74d4a9c4b9,
+                0x1e9a0429d365072995f6919bc29ba7f171ac28c0bc9083cd39285ed7a3aa879e
                 ),
             _pC: ArrHelper._arr(
-                0x15b25390fc76e92eaaad3892ae67bb075efad757a46d8071a3e251d74e624554,
-                0x210a9c0ee28d8b5f6aef03ecb9726e55017d84e509d0979d544c115a41d9bc45
+                0x161e34e7d5dd24f4998b995bef58eca0578d7549a4c4a0ca96cd4e52965d1f19,
+                0x064935e8410a403e6b385788a2dcf27d8be4cc5b095a03d005797b33358110d4
                 ),
-            commit: 0x0b7386c6ee5ebefc31a4c1defe57282c00b303394f976224ec87a01bfad562f0
+            commit: 0x0d3703c4cc8e88dc9aba3f2c34d00101f580d572b9c09bf27530bbee06d62831
         });
     }
 }

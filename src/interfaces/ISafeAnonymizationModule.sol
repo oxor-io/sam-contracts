@@ -19,11 +19,16 @@
 
 pragma solidity 0.8.23;
 
-import {ISafe} from "./Safe/ISafe.sol";
+import {ISafe} from "../Safe/interfaces/ISafe.sol";
 import {ISafeAnonymizationModuleEvents} from "./ISafeAnonymizationModuleEvents.sol";
 import {ISafeAnonymizationModuleErrors} from "./ISafeAnonymizationModuleErrors.sol";
+import {ISafeAnonymizationModuleGetters} from "./ISafeAnonymizationModuleGetters.sol";
 
-interface ISafeAnonymizationModule is ISafeAnonymizationModuleEvents, ISafeAnonymizationModuleErrors {
+interface ISafeAnonymizationModule is
+    ISafeAnonymizationModuleEvents,
+    ISafeAnonymizationModuleErrors,
+    ISafeAnonymizationModuleGetters
+{
     struct Proof {
         uint256[2] _pA;
         uint256[2][2] _pB;
@@ -48,4 +53,15 @@ interface ISafeAnonymizationModule is ISafeAnonymizationModuleEvents, ISafeAnony
         ISafe.Operation operation,
         Proof[] calldata proofs
     ) external returns (bool success, bytes memory returnData);
+
+    function approveHash(
+        address to,
+        uint256 value,
+        bytes memory data,
+        ISafe.Operation operation,
+        uint256 nonce,
+        Proof[] calldata proofs
+    ) external;
+
+    function file(bytes32 what, uint256 value) external;
 }

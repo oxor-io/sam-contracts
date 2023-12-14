@@ -126,20 +126,20 @@ contract SAMApproveTest is Test, Setup {
         // Approve future tx
         ISafeAnonymizationModule.Proof memory futureProof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x12c8e7599913a7ac9efe01733772310503d8859bdec0dd814ba81dd2ee94d972,
-                0x0e1ea670f4700f3157d30ae5541667de8912e4af91c1d4c73051b585d81da5d7
+                0x05dc5b7ef24ecf1c06efdaa127d0173fd2e672f4a3e0bf8e106bd88ed1975d5c,
+                0x2180234fde27e43f4eb6da20fc0fb117705593e8affa7b51064066d1b7648ee3
                 ),
             _pB: ArrHelper._arr(
-                0x18a9ba235efd4505e48f22123ad0af0e279f1856ada0e4902deaaba481817794,
-                0x2a2b376d10224bfe77a31797d13d7974b8c343725cb82360bae49c16733d6734,
-                0x214c9bff267fad0037bf0555d07a6978ca9021a7930f5acd64318f36ac165d2c,
-                0x0150442a2e0aed60630c0d5837bfe7041a9d285ece2363c89aa9bb9caede81ad
+                0x22c2e6d65961d673cfc48a6afcf78eca6db52924c8de48ee1fb06e3d5b934bd6,
+                0x18a942350d268c5bbac85a0e5e9e23a0a2eb2488b767a42c762ae27885cf6cba,
+                0x1770ab1b8ad3007b748164c8880e22ac532c643c8c507e13c5a0a6ed269a0bf1,
+                0x144351c649a36414b3bb8526e89aa94364dc18eed608537375d6171fc8df87bb
                 ),
             _pC: ArrHelper._arr(
-                0x2781374a72d49d6fcca5c2f55e1fb6928044e367c29f60db3c8b210dda9b3294,
-                0x08a749e19ae662b2fcbafd118a6ac0390002683e90320bef1c7649f129d69562
+                0x2882f2bd68f8188992d502bf16a0563317365e5b726a491a1da27caef890ddb2,
+                0x10f27f40e23e66d07c7609ac6093a72a855864456f3f704c8487d3b293adc049
                 ),
-            commit: 0x0e34a768e2dc3c4787a9758a53ce8db6d75edc76b2ddf199c25f335d862cc558
+            commit: 0x21a1f4b4f3e94b4dc202dc298125439d7a146f6a9e93a60b004146ff5bf61768
         });
 
         sam.approveHash(
@@ -212,38 +212,38 @@ contract SAMApproveTest is Test, Setup {
 
         ISafeAnonymizationModule.Proof memory proof2 = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2afe908f83145d802cc3e50369585df7786b3b316b1e516b6733cfb7384dd4c9,
-                0x2ba4550b3e1aa1c029a13de50805c514db11dc62013508709d4edbf8703f36c8
+                0x0ecd13086204dddf2ac7edfa0419f2fc401e9899a0657e8437ff3815b496110f,
+                0x1e04b1eaf368c1c4e0aa9b34df492b545c6a28996dad067f1283c79283a13ee3
                 ),
             _pB: ArrHelper._arr(
-                0x0db4cba65c38af0bdeb84ed9274c474f5dd444de6e3aae48f1b77e1b8a7bbe7f,
-                0x2843d75a220986c1328eabb6134f2095b74f532275e76fad76e77c4e6901d3ad,
-                0x2338761769c478c408787c703c6d490764128135f10ebd1da93aca317305eaa5,
-                0x037d35a6f23d567e3e5c39122bde4aeab506843ac6e5c971de0bfbbabd2bf2fc
+                0x077c2e81d9800d48550a80c2c45f481d1b35f1aa99789d09c4a33edbfd96d4a5,
+                0x2e1ba3045ed604ba28a6ce2410b4b25c8c964df41648c36639795aea586e7860,
+                0x0fd310057418bb526c799fd4eb0362b89012aa1a4bc08c70a97e15ceffaea0d3,
+                0x10121c8b918f599819d298be0343d66ea0027f2128e667e7bc62513c4c4c692e
                 ),
             _pC: ArrHelper._arr(
-                0x21a576b9e3ba508132d69c6335932d7a4587b267c90c16be40d9d2485872c933,
-                0x08565baf5c3bdfaf998a8c42fc2669af51cfadce20ba459528d0888fafea243f
+                0x07435c5070977a01eb1fe4eff4982a8e0c93204b2912c0d0d62365d1ef9f77d9,
+                0x2fdac2e8388a96e3bb3ff08d14064ed3f44fa2df404bc079d7169236ff466171
                 ),
-            commit: 0x16a2783612db151d79dcb5f97512328b79f4d171d3309f4fcec04a7f80a5c7cb
+            commit: 0x1d20b7b575c3903469ff41ab51e2c2bf7ec981010f38e94dab0b8d778b32cbf6
         });
 
         ISafeAnonymizationModule.Proof memory proof3 = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2ceeedd5933a9eae0a9aaf9ef30b6d2e4ce8ad48268edc08dfd68025ac7c0a69,
-                0x1ecff4b9fe0762cbb10473702f4ece7e1cec09f3fc5a82db854ac5569dde1e51
+                0x12fcb89427012748f66079c1614eb121ed5253ac2703a22197391001eefeb05e,
+                0x1daef9d52b95c9dc7e5b91d3979faa878ba729c3937e1e429bce03b3c7a71277
                 ),
             _pB: ArrHelper._arr(
-                0x190a36696796c11ad9af1f765cc81bde5073ba4b3c0e387d0ee960b148eefdfa,
-                0x29ab9befabfeb2a4f6613d94c95839692e33566842e1916d571d1a043c199ab2,
-                0x1a50f187086d0299ba491b54d49f5490ee671a7059495bba52b2a77e02a0fb94,
-                0x2cbf3700a58b6a260e3d4ee58f929107e99327eb3a14c582fbfc7a24f418bd3c
+                0x1fe06d5ce9fcc00f1ba957ef84bf1146ae99870d37f6d6040141713720b31b2c,
+                0x093eb62073e993b10f5f24daa653579e0a71be532700ff2e92c3693d4c712987,
+                0x13a46812c6d2a63761437cea937eaa0237e940c954fc898841828918dca41076,
+                0x2d529cc9f6515297af64da1a9da899b9ca776160ceba2586925014db5b4b95a9
                 ),
             _pC: ArrHelper._arr(
-                0x2cb929c15ef202dce1dd73bcd07c28d85ccb1fc3a857324d1ee688d6694e2398,
-                0x0e3837c40bf296802ba7b78dd1a0a21563a28600966baa7af1b292ffb085b610
+                0x26e67a61d9e189a17ccb8d1fc321eea0358f8c6deba812fd50379881a460a5e8,
+                0x063652af8ad04ed983aebfbf9b18b538cc9ce4a8dd4d5e8f8d99cd37c32f4c69
                 ),
-            commit: 0x200207958b8847abfe300c6eb3441bc3074cbc4d9bf4553153b343a3002547f0
+            commit: 0x19a2a0746431ec206a56a9c4c4ac8ef3eaed7b251b0309d4c0b59cbdca4d31a6
         });
 
         sam.approveHash(

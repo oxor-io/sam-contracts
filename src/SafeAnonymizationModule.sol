@@ -20,7 +20,7 @@
 pragma solidity 0.8.23;
 
 // Contracts
-import {Singleton} from "./common/Singleton.sol";
+import {Singleton} from "./Safe/common/Singleton.sol";
 import {Groth16Verifier} from "./utils/Verifier.sol";
 
 // Libs
@@ -28,7 +28,7 @@ import {PubSignalsConstructor} from "./libraries/PubSignalsConstructor.sol";
 
 // Interfaces
 import {ISafeAnonymizationModule} from "./interfaces/ISafeAnonymizationModule.sol";
-import {ISafe} from "./interfaces/Safe/ISafe.sol";
+import {ISafe} from "./Safe/interfaces/ISafe.sol";
 
 contract SafeAnonymizationModule is Singleton, ISafeAnonymizationModule {
     ///////////////////////

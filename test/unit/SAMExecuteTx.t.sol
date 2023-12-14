@@ -131,20 +131,20 @@ contract SAMExecuteTxTest is Test, Setup {
 
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x04d393a7603c83c64be89d9c8ba4e986281f5a05e23a12742a74bf8e772b76b2,
-                0x1c7ab852608d045a9466d7a8acdd609c738dced2322906d1dd849ae3a964196e
+                0x02dc0527c299eb8e40c4146132cb0220e5ca8365c67b1c087200ca7330cc7911,
+                0x302a3b0fcbcb5e3a131a281b6bb847c3e137e976e4a131793ba67e5181a291af
                 ),
             _pB: ArrHelper._arr(
-                0x23176251315fa9fde2234ff717dd87bf559327b7a20959cbfeef12334165e0dd,
-                0x1183cb2f2aabd83177d78d7af669567c22da0279ab4f97442a5146cd9d8e8e6b,
-                0x0cc961fa3a2fb2f8d6c80a92ffa2c08a5dc06d28ce4054d830572d98302de53d,
-                0x086d7627e9d452710a6040ef9c289dbe97176d267882185c151ff0c8528b610b
+                0x163c03a61b350f56d838a4a14998052ee87ac15f620b1f73af5008443bbbc8d1,
+                0x2630a094fc2ac048b2d389633531ed56aaeab7a6283db35231219219b1e348e8,
+                0x27bd74febbcc23cfb72d07141d649bee9b6cb4e9f74aee9378fe27546c6e6aac,
+                0x275eb36a2ca228aa5e50f64cad67277a984e24213d3e4d9f712421e4be2fe0ff
                 ),
             _pC: ArrHelper._arr(
-                0x283a9b58abf3d67aa92ff71f911ca5757b213c990526fc6388829fac3a0e5e2e,
-                0x11dd514e8b5481e08595d4c04b3cada59d65dc872ec4b2ed2b043a839b803c0e
+                0x1f89971430280a4ec77219388c5375c8bcc3c81f36d3f421a319315f602719b0,
+                0x1c51f3c808f1fd78cce5518e70e6c87786af149ce212e7da2d0a5ffb459ddeeb
                 ),
-            commit: 0x25db7f52d8edc8cd5f3a08e9521367fd9a86dc1d467362b0af9bdefa2dd81670
+            commit: 0x03677670c1fa50a33b4b697942dbfab3d2c170fef219b0d16ec7418504973795
         });
 
         (bool result, bytes memory returnData) = newSAM.executeTransactionReturnData(
@@ -165,20 +165,20 @@ contract SAMExecuteTxTest is Test, Setup {
     function test_fileCanNotChangeValueToZero() external enableModuleForSafe(safe, sam) {
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x04218f39e325c86aa520bfbe646886969b0805dcfe46d377d12155cb0950aa6e,
-                0x17c290d031fe7fdc34e3f5422df2136e65d22874ae46728070e76f137b42e099
+                0x16816f68966932e94955ab2d08379173069f4008b24bc0239a90521b95201cf4,
+                0x14ffdab6d474167573cb626d746d15976f4e03e7dc553e7a16cac553e1739f52
                 ),
             _pB: ArrHelper._arr(
-                0x05439d03f1faf21cea7f868dfd5dc21f00e288aca0c6c4d048b1084dc0ed936d,
-                0x225afb8f9415100cce1ee0a988c8a426fc81cb8759aed43eb4a9c8aa893e7270,
-                0x2bf07fd5eb88cd5b403fd83c9982d0e17975f947a72a6297ee26be35f3b41a72,
-                0x177bbb2b4c32d5bf7dba8e52d3c9451de3f8c8374469a62b46b379815d6952a2
+                0x1c1e7644fa09d9cc7e211da608bf22bc8a35a366f74aa854881fad2a0a9e1dca,
+                0x1c10ad3e9c52a5c319cf9709959126b85ece1be55ff3f713c7095ea26530eb65,
+                0x215344f418a736347e9f4a2e6a56072e37978ac925110f5cbed6b3c96d9e9e97,
+                0x077e27fe9a350e6304b3346ca16b4470b0a1f9036084781a31ca37b58f51279b
                 ),
             _pC: ArrHelper._arr(
-                0x295c26867b0f4fc348733ecf07d7123e3c7044e1fc7dd7b52f9afabfae6e3d17,
-                0x09e6c80d094b83701274efc4fde160e0ca6f3beb5cc597dbd2e27a071a4aa39e
+                0x08413b035c274fd509a1426ad486b925e96598a2a1bd30b417603741979f20c9,
+                0x2e3001a1cdc71a180caa12e493ad2060331ee7d3314e3b163eefc7f9dc658bc8
                 ),
-            commit: 0x1b80684a12d80a190cb01aa9601534d89c8f8202c0524118ecf9536f58e21c2a
+            commit: 0x1727678219936e164f33c3b5e3c6684d661b6b21dcd362125d3e6dd17491338c
         });
 
         bytes memory cd = abi.encodeCall(SafeAnonymizationModule.file, ("root", 0));
@@ -200,20 +200,20 @@ contract SAMExecuteTxTest is Test, Setup {
     function test_fileWillRevertWithUnknownWhat() external enableModuleForSafe(safe, sam) {
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x09720043b473e65dc14abf0780d15fe03036e0ed746f05b3b2f701ae3db013ea,
-                0x1c202e773e1efc6ec8f267cef6fc50c21b1e9b3016ae543ecf1497853a8b70e6
+                0x24641742649deef84d3311a2b4e53101218c069687a403776f285822f82b3411,
+                0x1a548144bd535cc45bf15059da87593af8c22e4c71131b62f52cd199a3fa80e9
                 ),
             _pB: ArrHelper._arr(
-                0x056c22f2a360679e0c52c875ba826b17127fd018852d6f395564d9de376a3536,
-                0x11889a6d60e239f218b1acf65443187462df335b1903bca7f7c3fb23dfd807f3,
-                0x04ea2e9b750352b3f0f228a9028f00d323c61ead0a82b29d96db686a46b71f80,
-                0x03a7704d23635e877857c962537c8323a33daeb8687c004191051d0d7089bc24
+                0x1a4e5fd383146da92940408b35ce89f63f36f9c39c3013d426c1c4c867389714,
+                0x2dabecf653a3f51d71cdcc9545555ebdde6d06141953f215275b7b6130c3fa11,
+                0x29c5b1a8960c66652434e5c834d6a142c80c5d8cb1b9aa4d8636de80d3960b23,
+                0x1a7fcaca129b3ff8d8c853f5165d3ec9136cf2095b01a4d17710fdc3da299ff9
                 ),
             _pC: ArrHelper._arr(
-                0x07d1e469aa31c8a8057ba7aecdf6c9be4ecbba82232c6c23062e263672b4bb71,
-                0x227f92a80f78e104595673753fdaf3f43a41d75218d2897ccf4d8d6a4ce46f7c
+                0x04b1d53a004b4db57d12cb885cd71ce0192f143be49b4c523e28cbe4bbdf7838,
+                0x0918c369526aeb9007bbd1052c59a5204945a76fd35aa366d780ff9ab1497304
                 ),
-            commit: 0x0de30072291e5d374a5ef963015ff9e0362f5bf980c0a4a34082f7c4fa9ce457
+            commit: 0x2bf7bb19a7fe26e6058308a62a8b70ef6f926b8e38b5245a483935019b4f9ab6
         });
 
         bytes32 what = "QWERTY";
@@ -236,20 +236,20 @@ contract SAMExecuteTxTest is Test, Setup {
     function test_fileCanChangeThreshold() external enableModuleForSafe(safe, sam) {
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2789dab844fbba0bd22bec652dd5fa1c626df159d48ec72594f49d0024bd049b,
-                0x2e102c0a153914f26fa17bdb47356d1fe3850c748160b1430cc622f4347cef12
+                0x19f844c422fe9e84c1bca2aa175351ab2af221dffeeedf024f2ec98c046a4e25,
+                0x075fb3c24d7f3ceb4809f8be21758e6261a373f6cc8572c8d4634a986a58af28
                 ),
             _pB: ArrHelper._arr(
-                0x00b11de2fb820baf85e6f3b74cf2588997df34f70f2174d9ab1cfa21a30e3808,
-                0x0605abb6e3f476f850b3d640d11dfb6879445c6625374db2bc01d4d2e84b3401,
-                0x190867512863dec7fd6a101b2aeb3d93a2b20f87537fa9ed1d498d19eeeae7ca,
-                0x13b58ad387b1072253ab66b052a8d255989c1a997e31447f210c06148c070cd4
+                0x20e03e9111f85d217301af6268486d6fd9630b71cd23c86d298960b2caf295b0,
+                0x13035c429a3a2345a665c78e5a0194be18494c479564153cd1a199368e149863,
+                0x01933bf881f3c06ece6c39f70c8f0e15539058243abb8fbcee30796fa9f0eb11,
+                0x0db43dabfec9a37f5320af2d779c6ab29b246db6412e2bde5d8945cf46259612
                 ),
             _pC: ArrHelper._arr(
-                0x22b3c2cb8baee286c2e9a765c618514e64c05a58e3b068940de5e31938138839,
-                0x24ada268ad6ae805b034dae87a8132b4edc6199856d317914eb4755d49847b14
+                0x26514dbf495f13a015408d69f4450ccd755fa9ebc668d45f7665cf8e49ba860f,
+                0x09f47ebc6929b9f5f017e7db1f4d46458d72ad204104aa352cfe8c6eb00e5f09
                 ),
-            commit: 0x03c4379fe6c22ba3135e0cb7f5ea7d2bacc0dde7bd6daeae391512cd468c111b
+            commit: 0x13df9e8388e0262957b0dea2b3573e39b27e1e734e2aab68f4c43d7061d04ed0
         });
 
         uint256 newThreshold = 2;
@@ -267,20 +267,20 @@ contract SAMExecuteTxTest is Test, Setup {
     function test_fileCanChangeRoot() external enableModuleForSafe(safe, sam) {
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2fe94e80c6914433e7472551d4ed4818fee3e28b698222095633cc37920ffcf0,
-                0x0619973663f58e7535b7fee01690d7e50c7965a4ba6bf23e0c93835595c62fa8
+                0x23e737b3bc34b1450937dd13ad834801623da3e3e991d3429dc19c637809f696,
+                0x0372257a38469e8613f67f1c272fe90bb10e9a79a92174ca7737134b8670a5da
                 ),
             _pB: ArrHelper._arr(
-                0x0f338d4fca9b0d50126b9d7f2712ef86430ca0669f855bb82f41241baeffe475,
-                0x067b1d90b83c5a2eb7134400f2a8c6622e024993f6e1d3c43525ba1a04a99485,
-                0x297a022b4abc122733775d0ed562615ff6c7c1f76e49a34f55de98a5a6a726a9,
-                0x05b1e22c1d35d0e64df24a18b42f1ec403fd2f028e104fb4cbb74c7e7ece4ad2
+                0x1154d448fd582863e48e5780bd67da6682e1b2832b5ca67f7c52a8aa872a0530,
+                0x07899f9bdf2fafcf861279bbd3017306533ace41c541c2550bb2a414a7136625,
+                0x1425072f8b24ebc70c4c928c79dccbc3fc19760b18074e11f45905d6485cc1be,
+                0x1e3f9079b16075d43c01a141da38b33d5259e199a1b109706e18e8cefa7061b8
                 ),
             _pC: ArrHelper._arr(
-                0x006bbdadb45d9c9b8c8b9bb85fd848ed1a9fd32670df81fd28cf052a89683311,
-                0x1249f1fa25901448999f8652b73f6f29a16765a7cc571148e1c84ee54f5c8f59
+                0x0f526faf75b3ed410184e6f2aecd4549838e1818c9bf874dcd0dc68f354a2dd0,
+                0x2744ddfe67c7622f14ac5d41838cdddff2391e7b8e52e7a91fa704353928446e
                 ),
-            commit: 0x2f700cf514b7ff9d1c7483c848bc593255a65bd24e0f41f203b9ce4ad04d816e
+            commit: 0x1357ca0b271d0a4afd21d926d41c735cf882f63d810e063a8cd3dcfce6ccee51
         });
 
         uint256 newRoot = 2;
@@ -294,8 +294,8 @@ contract SAMExecuteTxTest is Test, Setup {
         assertEq(sam.getParticipantsRoot(), newRoot);
     }
 
-    // SAM must be able to initiate Safe to call external contract.
-    function test_walletCanCallExternalContractFromModuleCall() external enableModuleForSafe(safe, sam) {
+    // SAM must be able to initiate Safe to delegatecall external contract.
+    function test_walletCanDelegateCallExternalContractFromModuleCall() external enableModuleForSafe(safe, sam) {
         SimpleContractDelegateCall target = new SimpleContractDelegateCall();
 
         uint256 value = 777;
@@ -303,20 +303,20 @@ contract SAMExecuteTxTest is Test, Setup {
 
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2ae8c0e564bea51560cc55c41056c442760ea496369c8d69e68408d28f7f514e,
-                0x14108a1f3fbebe9ccb567ecccc63105c453846207986306c8c06039422a6caa7
+                0x14656ecdd85525870c6f6b56ba87a457dc818d51a2e842aaf9b3056127805ad1,
+                0x2b9c0a5697ddfc2c5532fda4c122f191fb02b9a3ac9e240f1a408b8a153c77fd
                 ),
             _pB: ArrHelper._arr(
-                0x0747dbc19c193042b54e36c6cd88ed1b9754ff71b690e4450a89c0bba6b8398a,
-                0x0a6e35fd76c01c60e29284e9f6907bda608d237d64212776ee6894019e2ad156,
-                0x06820c09302ba57c3e0cba20db4ef50cb5b5d1afe7155ca55ee7a228ef35accf,
-                0x09b2d35413b612f287122bb79e13e8912e59de88de463d15aebba3049a3db88f
+                0x068e54761e1b43bd721f0314c6d4a2f82bd5419ee929b896c26e2790994dbf01,
+                0x0a06ff3cd3c0b594ad70fe9f4e8c7f82b16bf8a179a4b82089906f720f9664c3,
+                0x141371a5f6347d8ad66ff0a333cd1667bc39838cdecf913b9d20a4659dd806e3,
+                0x2a2ef71cc3b34ee66247299b0b67f991efd959aa2560ffb1806f41c0777d28de
                 ),
             _pC: ArrHelper._arr(
-                0x0d459d84bb97350be499105cadc10d827c272325efc2974a76ce27580e7ffc6d,
-                0x0ea8fa1e86fe0f7c2af371585788adddfb6cf9b98706c46db1e323fbaf80bfbd
+                0x18b36abae279d0c7ac69c3875ebf499d1053c314677ba683ac14a71aaa319efa,
+                0x2ce14cb95d2226e0772b02268b36c9f8188857579a6e952bfe922832f6aae081
                 ),
-            commit: 0x23a86b8311583d078cdb725ca8cecd657d7ddac6e3ee39136550cf2be235d60b
+            commit: 0x2b844e81e9d83eda1d3106326d3a8d30f06f639de2abb59d3166623cda5ff165
         });
 
         (bool result,) = sam.executeTransactionReturnData(
@@ -329,26 +329,26 @@ contract SAMExecuteTxTest is Test, Setup {
         assertEq(uint256(valueFromSlot), value);
     }
 
-    // SAM must be able to initiate Safe to delegatecall external contract.
-    function test_walletCanDelegateCallExternalContractFromModuleCall() external enableModuleForSafe(safe, sam) {
+    // SAM must be able to initiate Safe to call external contract.
+    function test_walletCanCallExternalContractFromModuleCall() external enableModuleForSafe(safe, sam) {
         SimpleContract target = new SimpleContract();
 
         ISafeAnonymizationModule.Proof memory proof = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x1557bc54edd29ca7cdd4cec48830e4e29129573df8efe294660f63d40b3930ab,
-                0x01b0887199beb15461ab3051701f96fa8fd69a7071ac5489480b0525a53c707f
+                0x2753d002cb25c73b2b8e9dea21f7c7cf7aecaddd15f4ab619b4e0c32c29d35b6,
+                0x14d67e5df41ebe0c7ec27fbc445cd2dafc0d603d58eaa79446f6269fe0b4dc42
                 ),
             _pB: ArrHelper._arr(
-                0x25e41aa0c41d2b2118f84088ab00820acf663c1f16ba4fa349b07df84001eea3,
-                0x1ce7db95df0385eb8e790f575bc0e596438116253b3001e38b1c11188630f9ee,
-                0x2cd7af43839a8aa14c2216363c880ba4b5a03749a73fe9ade052740006d96eb9,
-                0x281e2c70a576f9d63dc56d862e7ee6b28316aa697fe21bf3920a09835f67671b
+                0x1cf2a46e12bc12213166b0c3c1ca97f9ca5ff1f4cf90abc044753662146104e2,
+                0x058d323696933638c4a4dd5597398661dc7df006ef6c3199e2f22171ec79c808,
+                0x034bfc5f0cb14800dc1d4ae38897fe62eb0c77a532a0b4db40a75748111b0d8e,
+                0x01693e93170a172b6b318a1f79e313549a67c329b906ce97a3b794432a6a01c7
                 ),
             _pC: ArrHelper._arr(
-                0x177492e52d1e0bdebfc9afc8cfd0dbdcdae6b899a1dddb2a43c54840a3cc1347,
-                0x0aa7ae884e68cdc2bd0abdeb9c21efb9b32312777061f889c404906ee2a04615
+                0x077cfde9ef62e5c7d1fcd243380c63cddc434d2af2efdb89f2a62e497ae20e6b,
+                0x0387d99d56caffff0c2e39bfadec8538c7ddf7d9f2ff4500a60eed70deb92650
                 ),
-            commit: 0x21942c5132c58db5ba6f4b89f0d533b30f292f2b29b6d3d4372287e7346d35ce
+            commit: 0x05bc0da9e8811fd302ada9ed9ec4c9d810b886a73e81ce388800381f06e60e44
         });
 
         bytes memory cd = abi.encodeCall(SimpleContract.call, ());
@@ -407,38 +407,38 @@ contract SAMExecuteTxTest is Test, Setup {
 
         ISafeAnonymizationModule.Proof memory proof2 = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2afe908f83145d802cc3e50369585df7786b3b316b1e516b6733cfb7384dd4c9,
-                0x2ba4550b3e1aa1c029a13de50805c514db11dc62013508709d4edbf8703f36c8
+                0x0ecd13086204dddf2ac7edfa0419f2fc401e9899a0657e8437ff3815b496110f,
+                0x1e04b1eaf368c1c4e0aa9b34df492b545c6a28996dad067f1283c79283a13ee3
                 ),
             _pB: ArrHelper._arr(
-                0x0db4cba65c38af0bdeb84ed9274c474f5dd444de6e3aae48f1b77e1b8a7bbe7f,
-                0x2843d75a220986c1328eabb6134f2095b74f532275e76fad76e77c4e6901d3ad,
-                0x2338761769c478c408787c703c6d490764128135f10ebd1da93aca317305eaa5,
-                0x037d35a6f23d567e3e5c39122bde4aeab506843ac6e5c971de0bfbbabd2bf2fc
+                0x077c2e81d9800d48550a80c2c45f481d1b35f1aa99789d09c4a33edbfd96d4a5,
+                0x2e1ba3045ed604ba28a6ce2410b4b25c8c964df41648c36639795aea586e7860,
+                0x0fd310057418bb526c799fd4eb0362b89012aa1a4bc08c70a97e15ceffaea0d3,
+                0x10121c8b918f599819d298be0343d66ea0027f2128e667e7bc62513c4c4c692e
                 ),
             _pC: ArrHelper._arr(
-                0x21a576b9e3ba508132d69c6335932d7a4587b267c90c16be40d9d2485872c933,
-                0x08565baf5c3bdfaf998a8c42fc2669af51cfadce20ba459528d0888fafea243f
+                0x07435c5070977a01eb1fe4eff4982a8e0c93204b2912c0d0d62365d1ef9f77d9,
+                0x2fdac2e8388a96e3bb3ff08d14064ed3f44fa2df404bc079d7169236ff466171
                 ),
-            commit: 0x16a2783612db151d79dcb5f97512328b79f4d171d3309f4fcec04a7f80a5c7cb
+            commit: 0x1d20b7b575c3903469ff41ab51e2c2bf7ec981010f38e94dab0b8d778b32cbf6
         });
 
         ISafeAnonymizationModule.Proof memory proof3 = ISafeAnonymizationModule.Proof({
             _pA: ArrHelper._arr(
-                0x2ceeedd5933a9eae0a9aaf9ef30b6d2e4ce8ad48268edc08dfd68025ac7c0a69,
-                0x1ecff4b9fe0762cbb10473702f4ece7e1cec09f3fc5a82db854ac5569dde1e51
+                0x12fcb89427012748f66079c1614eb121ed5253ac2703a22197391001eefeb05e,
+                0x1daef9d52b95c9dc7e5b91d3979faa878ba729c3937e1e429bce03b3c7a71277
                 ),
             _pB: ArrHelper._arr(
-                0x190a36696796c11ad9af1f765cc81bde5073ba4b3c0e387d0ee960b148eefdfa,
-                0x29ab9befabfeb2a4f6613d94c95839692e33566842e1916d571d1a043c199ab2,
-                0x1a50f187086d0299ba491b54d49f5490ee671a7059495bba52b2a77e02a0fb94,
-                0x2cbf3700a58b6a260e3d4ee58f929107e99327eb3a14c582fbfc7a24f418bd3c
+                0x1fe06d5ce9fcc00f1ba957ef84bf1146ae99870d37f6d6040141713720b31b2c,
+                0x093eb62073e993b10f5f24daa653579e0a71be532700ff2e92c3693d4c712987,
+                0x13a46812c6d2a63761437cea937eaa0237e940c954fc898841828918dca41076,
+                0x2d529cc9f6515297af64da1a9da899b9ca776160ceba2586925014db5b4b95a9
                 ),
             _pC: ArrHelper._arr(
-                0x2cb929c15ef202dce1dd73bcd07c28d85ccb1fc3a857324d1ee688d6694e2398,
-                0x0e3837c40bf296802ba7b78dd1a0a21563a28600966baa7af1b292ffb085b610
+                0x26e67a61d9e189a17ccb8d1fc321eea0358f8c6deba812fd50379881a460a5e8,
+                0x063652af8ad04ed983aebfbf9b18b538cc9ce4a8dd4d5e8f8d99cd37c32f4c69
                 ),
-            commit: 0x200207958b8847abfe300c6eb3441bc3074cbc4d9bf4553153b343a3002547f0
+            commit: 0x19a2a0746431ec206a56a9c4c4ac8ef3eaed7b251b0309d4c0b59cbdca4d31a6
         });
 
         (bool result, bytes memory data) = sam.executeTransactionReturnData(

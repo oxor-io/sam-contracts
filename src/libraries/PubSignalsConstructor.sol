@@ -19,7 +19,7 @@
 
 pragma solidity 0.8.23;
 
-import {ISafe} from "../interfaces/Safe/ISafe.sol";
+import {ISafe} from "../Safe/interfaces/ISafe.sol";
 
 library PubSignalsConstructor {
     // Chosen specifically because it is the most convenient representation of numbers at the moment.
